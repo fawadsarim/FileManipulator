@@ -1,8 +1,10 @@
 from flask import Flask, request, send_from_directory, jsonify
+from flask_cors import CORS  # Import Flask-CORS
 import os
 import pandas as pd
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 UPLOAD_FOLDER = 'uploaded_files'
 PROCESSED_FOLDER = 'processed_files'
@@ -19,11 +21,9 @@ def upload_file():
     if file.filename == '':
         return jsonify({'error': 'No file selected'}), 400
 
-    # Save the uploaded file
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(file_path)
 
-    # Process the file
     file_extension = file.filename.split('.')[-1]
     if file_extension == 'csv':
         df = pd.read_csv(file_path)
@@ -32,10 +32,8 @@ def upload_file():
     else:
         return jsonify({'error': 'Unsupported file type'}), 400
 
-    # Remove the second column
     df.drop(df.columns[1], axis=1, inplace=True)
 
-    # Save the processed file
     processed_file_path = os.path.join(PROCESSED_FOLDER, f'processed_{file.filename}')
     if file_extension == 'csv':
         df.to_csv(processed_file_path, index=False)
@@ -49,4 +47,5 @@ def download_file(filename):
     return send_from_directory(PROCESSED_FOLDER, filename, as_attachment=True)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
