@@ -14,6 +14,7 @@
                 Drag & Drop or Click to Upload
                 <input type="file" name="file" id="file-upload" required>
             </label>
+            <p id="file-name" style="margin-top: 10px; font-style: italic; color: #555;">No file selected</p>
             <button type="submit">Process File</button>
         </form>
         <div id="result">
@@ -23,15 +24,25 @@
 
     <script>
         const form = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('file-upload');
+        const fileNameDisplay = document.getElementById('file-name');
         const resultDiv = document.getElementById('result');
 
+        // Display selected file name
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = `Selected file: ${fileInput.files[0].name}`;
+            } else {
+                fileNameDisplay.textContent = "No file selected";
+            }
+        });
+
+        // Handle form submission
         form.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Prevent form from submitting the traditional way
+            event.preventDefault(); // Prevent form from submitting traditionally
             resultDiv.innerHTML = "Processing...";
 
-            const fileInput = document.getElementById('file-upload');
             const file = fileInput.files[0];
-
             if (!file) {
                 resultDiv.innerHTML = "Please select a file.";
                 return;
